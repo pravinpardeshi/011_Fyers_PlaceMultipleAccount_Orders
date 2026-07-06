@@ -16,7 +16,10 @@ router = APIRouter(prefix="/api/v1/orders", tags=["orders"])
 
 @router.post("/place", response_model=PlaceOrderResponse)
 async def place_order(payload: PlaceOrderRequest, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Account).where(Account.is_active == True, Account.access_token.isnot(None)))
+    query = select(Account).where(Account.is_active == True, Account.access_token.isnot(None))
+    if payload.account_ids:
+        query = query.where(Account.id.in_(payload.account_ids))
+    result = await db.execute(query)
     accounts = result.scalars().all()
 
     if not accounts:

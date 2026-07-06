@@ -62,6 +62,7 @@ class PlaceOrderRequest(BaseModel):
     stop_price: float = Field(default=0)
     validity: str = Field(default="DAY")
     disclosed_qty: int = Field(default=0)
+    account_ids: list[uuid.UUID] | None = None  # None = all active accounts with tokens
 
 
 class OrderResult(BaseModel):

@@ -93,6 +93,37 @@ function toast(message, type = 'info') {
     setTimeout(() => el.remove(), 3000);
 }
 
+// ─── Account Checkboxes ───
+async function loadAccountCheckboxes() {
+    try {
+        const accounts = await api('/api/v1/accounts');
+        const group = document.getElementById('accountSelectGroup');
+        const activeAccounts = accounts.filter(a => a.is_active);
+
+        if (activeAccounts.length === 0) {
+            group.innerHTML = '<div class="account-select-loading">No active accounts</div>';
+            return;
+        }
+
+        group.innerHTML = activeAccounts.map(a => `
+            <label class="account-checkbox">
+                <input type="checkbox" value="${a.id}" checked>
+                <span class="account-checkbox-label">${esc(a.name)}</span>
+                <span class="account-checkbox-id">${esc(a.client_id)}</span>
+            </label>
+        `).join('');
+    } catch {
+        document.getElementById('accountSelectGroup').innerHTML =
+            '<div class="account-select-loading">Failed to load accounts</div>';
+    }
+}
+
+function getSelectedAccountIds() {
+    const checked = document.querySelectorAll('#accountSelectGroup input[type="checkbox"]:checked');
+    const ids = Array.from(checked).map(cb => cb.value);
+    return ids.length > 0 ? ids : null;
+}
+
 // ─── Place Order ───
 async function placeOrder(side) {
     const symbol = document.getElementById('symbol').value.trim();
@@ -100,11 +131,13 @@ async function placeOrder(side) {
     const productType = document.getElementById('productType').value;
     const orderType = parseInt(document.getElementById('orderType').value);
     const limitPrice = parseFloat(document.getElementById('limitPrice').value) || 0;
+    const accountIds = getSelectedAccountIds();
 
     if (!symbol) { toast('Enter a symbol', 'error'); return; }
     if (!qty || qty <= 0) { toast('Enter valid quantity', 'error'); return; }
+    if (!accountIds) { toast('Select at least one account', 'error'); return; }
 
-    const payload = { symbol, qty, order_type: orderType, side, product_type: productType, limit_price: limitPrice };
+    const payload = { symbol, qty, order_type: orderType, side, product_type: productType, limit_price: limitPrice, account_ids: accountIds };
 
     const sideLabel = side === 1 ? 'BUY' : 'SELL';
     logMessage(`Placing ${sideLabel} order: ${symbol} x ${qty}...`, 'pending');
@@ -212,6 +245,7 @@ async function submitAccount(e) {
         }
         hideAccountForm();
         loadAccounts();
+        loadAccountCheckboxes();
     } catch (err) {
         toast(err.message, 'error');
     }
@@ -237,6 +271,7 @@ async function deleteAccount(id) {
         await api(`/api/v1/accounts/${id}`, 'DELETE');
         toast('Account deleted', 'success');
         loadAccounts();
+        loadAccountCheckboxes();
     } catch (err) {
         toast(err.message, 'error');
     }
@@ -345,6 +380,7 @@ async function init() {
         document.getElementById('connectionStatus').className = 'status-dot red';
     }
     loadAccounts();
+    loadAccountCheckboxes();
 }
 
 init();
