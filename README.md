@@ -16,9 +16,7 @@ Built with **FastAPI**, **Fyers API V3**, **SQLAlchemy** (SQLite / PostgreSQL), 
 - **Automated 2FA / TOTP token generation** — no manual browser login needed each morning
 - **SQLite or PostgreSQL** — swap one line in `config.py` to switch
 - **Light / Dark theme** — toggle from the status bar, persists in localStorage
-=======
 - **Dark trading terminal UI** — order form, account management, token status, order history
->>>>>>> aaf78d9aa6d8719a0083ca0879538388fc136963
 - **Full order history** — every order tracked with batch grouping and API responses
 
 ---
