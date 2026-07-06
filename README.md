@@ -120,7 +120,7 @@ Go to the **Accounts** tab and click **+ Add Account**. Fill in credentials for 
 
 Repeat for Multiple accounts.
 
-# 2FA should be enabled for the accounts.
+### 2FA should be enabled for the accounts.
 
 ### Step 2 — Generate Tokens
 
