@@ -15,7 +15,11 @@ Built with **FastAPI**, **Fyers API V3**, **SQLAlchemy** (SQLite / PostgreSQL), 
 - **Multi-account order placement** — fire one order to 3+ accounts at the same time using parallel threads
 - **Automated 2FA / TOTP token generation** — no manual browser login needed each morning
 - **SQLite or PostgreSQL** — swap one line in `config.py` to switch
+<<<<<<< HEAD
 - **Light / Dark theme** — toggle from the status bar, persists in localStorage
+=======
+- **Dark trading terminal UI** — order form, account management, token status, order history
+>>>>>>> aaf78d9aa6d8719a0083ca0879538388fc136963
 - **Full order history** — every order tracked with batch grouping and API responses
 
 ---
@@ -36,7 +40,11 @@ Built with **FastAPI**, **Fyers API V3**, **SQLAlchemy** (SQLite / PostgreSQL), 
 ├── templates/
 │   └── index.html          # Trading terminal UI
 ├── static/
+<<<<<<< HEAD
 │   ├── style.css           # Light & dark theme styles
+=======
+│   ├── style.css           # Dark theme styles
+>>>>>>> aaf78d9aa6d8719a0083ca0879538388fc136963
 │   └── app.js              # Frontend JavaScript
 └── pyproject.toml          # Dependencies
 ```
@@ -113,7 +121,9 @@ Go to the **Accounts** tab and click **+ Add Account**. Fill in credentials for 
 | TOTP Key | `OMKRABCDCDVDFGECLWXK6OVB7T4DTKU5` |
 | PIN | `1234` |
 
-Repeat for all 3 accounts.
+Repeat for Multiple accounts.
+
+# 2FA should be enabled for the accounts.
 
 ### Step 2 — Generate Tokens
 
