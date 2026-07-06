@@ -1,15 +1,18 @@
 import asyncio
+import logging
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone, timedelta
 
 from fastapi import APIRouter, Depends
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
 from models import Account
 from schemas import TokenGenerateRequest, TokenStatus
 from fyers_client import generate_access_token
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/tokens", tags=["tokens"])
 
@@ -44,10 +47,22 @@ async def generate_tokens(payload: TokenGenerateRequest, db: AsyncSession = Depe
         })
 
         if token_result["success"]:
-            acc = next(a for a in accounts if a.id == account_id)
-            acc.access_token = token_result["access_token"]
-            acc.token_expiry = datetime.now(timezone.utc) + timedelta(hours=24)
-            await db.commit()
+            try:
+                await db.execute(
+                    update(Account)
+                    .where(Account.id == account_id)
+                    .values(
+                        access_token=token_result["access_token"],
+                        token_expiry=datetime.now(timezone.utc) + timedelta(hours=24),
+                    )
+                )
+                await db.commit()
+                logger.info("Token saved for %s", account_name)
+            except Exception as e:
+                logger.exception("Failed to save token for %s", account_name)
+                await db.rollback()
+        else:
+            logger.warning("Token generation failed for %s: %s", account_name, token_result["error"])
 
     return {"message": f"Processed {len(results)} accounts", "results": results}
 
@@ -62,7 +77,10 @@ async def token_status(db: AsyncSession = Depends(get_db)):
         has_token = acc.access_token is not None
         is_valid = False
         if has_token and acc.token_expiry:
-            is_valid = acc.token_expiry > datetime.now(timezone.utc)
+            expiry = acc.token_expiry
+            if expiry.tzinfo is None:
+                expiry = expiry.replace(tzinfo=timezone.utc)
+            is_valid = expiry > datetime.now(timezone.utc)
 
         statuses.append(TokenStatus(
             account_id=acc.id,

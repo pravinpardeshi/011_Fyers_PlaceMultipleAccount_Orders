@@ -30,6 +30,7 @@ class AccountResponse(BaseModel):
     name: str
     fyers_username: str
     client_id: str
+    redirect_uri: str
     is_active: bool
     has_token: bool
     token_expiry: datetime | None
@@ -55,7 +56,7 @@ class TokenStatus(BaseModel):
 class PlaceOrderRequest(BaseModel):
     symbol: str = Field(..., description="e.g., NSE:SBIN-EQ")
     qty: int = Field(..., gt=0)
-    order_type: int = Field(..., description="1=Limit, 2=Market")
+    order_type: int = Field(..., description="1=Limit, 2=Market, 3=SL-Limit, 4=SL-Market")
     side: int = Field(..., description="1=Buy, -1=Sell")
     product_type: str = Field(..., description="INTRADAY, CNC, or MARGIN")
     limit_price: float = Field(default=0)

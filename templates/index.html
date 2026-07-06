@@ -50,7 +50,7 @@
                     <span id="validTokenCount">0 Valid Tokens</span>
                     <span class="separator">|</span>
                     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark theme">
-                        <span id="themeIcon">&#9790;</span>
+                        <span id="themeIcon"></span>
                     </button>
                 </div>
             </div>
@@ -91,6 +91,19 @@
                             <div class="form-group" id="limitPriceGroup">
                                 <label for="limitPrice">Limit Price</label>
                                 <input type="number" id="limitPrice" value="0" step="0.05">
+                            </div>
+                        </div>
+                        <div class="form-row" id="stopPriceRow" style="display:none;">
+                            <div class="form-group">
+                                <label for="stopPrice">Trigger Price</label>
+                                <input type="number" id="stopPrice" value="0" step="0.05">
+                            </div>
+                            <div class="form-group">
+                                <label for="validity">Validity</label>
+                                <select id="validity">
+                                    <option value="DAY">DAY</option>
+                                    <option value="IOC">IOC</option>
+                                </select>
                             </div>
                         </div>
                         <div class="form-group">
@@ -141,7 +154,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="accPin">PIN</label>
-                                    <input type="password" id="accPin" placeholder="1234" maxlength="10" required>
+                                    <input type="password" id="accPin" placeholder="1234" maxlength="10">
                                 </div>
                             </div>
                             <div class="form-row">
@@ -151,12 +164,12 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="accSecretKey">Secret Key</label>
-                                    <input type="password" id="accSecretKey" required>
+                                    <input type="password" id="accSecretKey">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="accTotpKey">TOTP Key</label>
-                                <input type="password" id="accTotpKey" placeholder="OMKRABCDCDVDFGECLWXK6OVB7T4DTKU5" required>
+                                <input type="password" id="accTotpKey" placeholder="OMKRABCDCDVDFGECLWXK6OVB7T4DTKU5">
                             </div>
                             <div class="form-group">
                                 <label for="accRedirectUri">Redirect URI</label>

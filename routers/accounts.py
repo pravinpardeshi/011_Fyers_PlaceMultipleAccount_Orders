@@ -16,6 +16,7 @@ def account_to_response(account: Account) -> AccountResponse:
         name=account.name,
         fyers_username=account.fyers_username,
         client_id=account.client_id,
+        redirect_uri=account.redirect_uri,
         is_active=account.is_active,
         has_token=account.access_token is not None,
         token_expiry=account.token_expiry,

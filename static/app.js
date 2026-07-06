@@ -5,9 +5,12 @@ function getTheme() {
     return localStorage.getItem('theme') || 'dark';
 }
 
+const ICON_SUN = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+const ICON_MOON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="#000000"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+
 function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
-    document.getElementById('themeIcon').textContent = theme === 'dark' ? '\u263E' : '\u2600';
+    document.getElementById('themeIcon').innerHTML = theme === 'dark' ? ICON_SUN : ICON_MOON;
 }
 
 function toggleTheme() {
@@ -53,7 +56,10 @@ document.querySelectorAll('.nav-links li').forEach(tab => {
 // ─── Order Type Toggle ───
 document.getElementById('orderType').addEventListener('change', function() {
     const lpGroup = document.getElementById('limitPriceGroup');
+    const spRow = document.getElementById('stopPriceRow');
+    const isSL = ['3','4'].includes(this.value);
     lpGroup.style.display = ['1','3'].includes(this.value) ? 'block' : 'none';
+    spRow.style.display = isSL ? 'flex' : 'none';
 });
 
 // ─── API Helpers ───
@@ -131,13 +137,15 @@ async function placeOrder(side) {
     const productType = document.getElementById('productType').value;
     const orderType = parseInt(document.getElementById('orderType').value);
     const limitPrice = parseFloat(document.getElementById('limitPrice').value) || 0;
+    const stopPrice = parseFloat(document.getElementById('stopPrice').value) || 0;
+    const validity = document.getElementById('validity').value;
     const accountIds = getSelectedAccountIds();
 
     if (!symbol) { toast('Enter a symbol', 'error'); return; }
     if (!qty || qty <= 0) { toast('Enter valid quantity', 'error'); return; }
     if (!accountIds) { toast('Select at least one account', 'error'); return; }
 
-    const payload = { symbol, qty, order_type: orderType, side, product_type: productType, limit_price: limitPrice, account_ids: accountIds };
+    const payload = { symbol, qty, order_type: orderType, side, product_type: productType, limit_price: limitPrice, stop_price: stopPrice, validity, account_ids: accountIds };
 
     const sideLabel = side === 1 ? 'BUY' : 'SELL';
     logMessage(`Placing ${sideLabel} order: ${symbol} x ${qty}...`, 'pending');
@@ -197,19 +205,28 @@ async function loadAccounts() {
 function showAccountForm(account = null) {
     document.getElementById('accountFormModal').classList.remove('hidden');
     document.getElementById('accountFormTitle').textContent = account ? 'Edit Account' : 'Add Account';
+    const sensitiveFields = ['accTotpKey', 'accPin', 'accSecretKey'];
     if (account) {
         document.getElementById('accountId').value = account.id;
         document.getElementById('accName').value = account.name;
         document.getElementById('accUsername').value = account.fyers_username;
         document.getElementById('accClientId').value = account.client_id;
         document.getElementById('accTotpKey').value = '';
+        document.getElementById('accTotpKey').placeholder = 'Leave blank to keep existing';
         document.getElementById('accPin').value = '';
+        document.getElementById('accPin').placeholder = 'Leave blank to keep existing';
         document.getElementById('accSecretKey').value = '';
+        document.getElementById('accSecretKey').placeholder = 'Leave blank to keep existing';
         document.getElementById('accRedirectUri').value = account.redirect_uri || 'https://trade.fyers.in/api-login/redirect-uri/index.html';
+        sensitiveFields.forEach(id => document.getElementById(id).removeAttribute('required'));
     } else {
         document.getElementById('accountForm').reset();
         document.getElementById('accountId').value = '';
+        document.getElementById('accTotpKey').placeholder = '';
+        document.getElementById('accPin').placeholder = '';
+        document.getElementById('accSecretKey').placeholder = '';
         document.getElementById('accRedirectUri').value = 'https://trade.fyers.in/api-login/redirect-uri/index.html';
+        sensitiveFields.forEach(id => document.getElementById(id).setAttribute('required', ''));
     }
 }
 
