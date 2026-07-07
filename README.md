@@ -15,12 +15,16 @@ Built with **FastAPI**, **Fyers API V3**, **SQLAlchemy** (SQLite / PostgreSQL), 
 - **Multi-account order placement** — fire one order to 3+ accounts simultaneously via parallel threads
 - **Automated 2FA / TOTP token generation** — no manual browser login needed each morning
 - **Background token scheduler** — auto-refreshes tokens every 30 minutes before expiry
+- **Smart order form** — auto-toggles between Quantity (equity) and Lots (F&O) based on product type
+- **Position Type tracking** — choose Intraday or Carry Forward for F&O trades
+- **Product Type info tooltip** — quick reference for INTRADAY, CNC, and MARGIN product types
 - **Derivatives support** — F&O orders with lot size validation
 - **SQLite or PostgreSQL** — swap one line in `config.py` to switch
 - **Light / Dark theme** — toggle from the status bar, persists in localStorage
 - **Collapsible sidebar** — hover tooltips in collapsed state, persists in localStorage
 - **Account selection checkboxes** — choose which accounts receive each order
 - **Health check endpoint** — `/health` for monitoring DB, scheduler, and account status
+- **Token Status in Health Check** — per-account token validity at a glance
 - **Full order history** — every order tracked with batch grouping and API responses
 - **Montserrat font** — clean, modern UI typography
 
@@ -146,17 +150,45 @@ Tokens are stored in the database and reused until they expire. The **background
 
 In the **Trading Terminal** tab:
 
-1. Enter the symbol (e.g. `NSE:SBIN-EQ`)
-2. Set quantity, product type, and order type
-3. For SL-Limit / SL-Market orders, enter the stop price
-4. Select which accounts to send the order to via checkboxes
-5. Click **BUY** or **SELL**
+#### For Equity (INTRADAY / CNC):
 
-For derivatives (F&O), the quantity is validated against the instrument's lot size.
+1. Enter the symbol (e.g. `NSE:SBIN-EQ`)
+2. Select Product: `INTRADAY` or `CNC (Delivery)`
+3. Enter **Quantity** (e.g., 100 shares)
+4. Select Order Type and enter price (if Limit/SL)
+5. Select accounts via checkboxes
+6. Click **BUY** or **SELL**
+
+#### For F&O (MARGIN):
+
+1. Enter the symbol (e.g. `NIFTY24JUL24500CE`)
+2. Select Product: `MARGIN (F&O)`
+3. Enter **Lots** (e.g., 2) — Lot Size is shown as reference
+4. Select **Position Type**: `Intraday` or `Carry Forward`
+5. Select Order Type and enter price (if Limit/SL)
+6. Select accounts via checkboxes
+7. Click **BUY** or **SELL`
+
+| Product | Segment | Use Case |
+|---------|---------|----------|
+| `INTRADAY` | Equity | Same-day square-off |
+| `CNC` | Equity | Delivery / Long-term holding |
+| `MARGIN` | F&O | Derivatives (Intraday & Positional) |
+
+**Note:** Position Type (Intraday / Carry Forward) is for your reference. Both send `MARGIN` to Fyers API.
 
 ### Step 4 — Review History
 
 The **Order History** tab shows all past orders grouped by batch, with per-account status and raw API responses.
+
+### Step 5 — Health Check
+
+The **Health Check** tab shows:
+- Overall system status
+- Database connectivity
+- Scheduler status
+- Account counts
+- Per-account token validity (Token Status card)
 
 ---
 
@@ -175,7 +207,7 @@ The **Order History** tab shows all past orders grouped by batch, with per-accou
 | `POST` | `/api/v1/tokens/refresh` | Manual token refresh |
 | `POST` | `/api/v1/orders/place` | Place order across selected accounts |
 | `GET` | `/api/v1/orders/history` | Order history with optional `batch_id` filter |
-| `GET` | `/health` | Health check (DB, scheduler, accounts) |
+| `GET` | `/health` | Health check (DB, scheduler, accounts, tokens) |
 
 Interactive API docs available at **http://localhost:8000/docs**.
 
@@ -245,6 +277,7 @@ PORT = 8000
 - **Token Generation**: Fully automated 5-step TOTP flow (OTP → verify TOTP → verify PIN → get auth code → exchange for access token)
 - **Token Scheduler**: Background task checks every 30 minutes, refreshes tokens expiring within 1 hour
 - **Order Placement**: Dispatched in parallel using `ThreadPoolExecutor` for near-simultaneous execution
+- **Smart Form**: Automatically toggles between Quantity (equity) and Lots (F&O) based on product selection
 
 ---
 

@@ -24,7 +24,7 @@
 [data-theme="light"] {
     --bg-primary: #f1f5f9;
     --bg-secondary: #ffffff;
-    --bg-sidebar: #cfd8dc;
+    --bg-sidebar: #B9D3EE;
     --bg-card: #e8ecf1;
     --bg-input: #f8fafc;
     --text-primary: #0f172a;
@@ -74,6 +74,7 @@ body {
     z-index: 50;
     margin: 30px 0 60px 10px;
     border-radius: 16px;
+    color: #000000;
 }
 
 .sidebar-brand {
@@ -93,8 +94,9 @@ body {
 
 .sidebar-brand .subtitle {
     font-size: 15px;
-    color: #000000;
+    color: var(--text-primary);
     text-align: center;
+    margin-left: -4px;
 }
 
 .nav-links {
@@ -347,6 +349,71 @@ body {
 .form-group select:focus {
     outline: none;
     border-color: var(--accent-blue);
+}
+
+.info-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    font-size: 14px;
+    color: var(--accent-blue);
+    cursor: pointer;
+    border: 1px solid var(--accent-blue);
+    border-radius: 50%;
+    margin-left: 6px;
+    vertical-align: middle;
+    transition: background 0.2s;
+}
+
+.info-icon:hover {
+    background: var(--accent-blue);
+    color: #ffffff;
+}
+
+.tooltip-box {
+    display: none;
+    position: absolute;
+    z-index: 1000;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: var(--shadow);
+    max-width: 400px;
+    margin-top: 8px;
+}
+
+.form-group:hover .tooltip-box {
+    display: block;
+}
+
+.tooltip-box table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.tooltip-box th,
+.tooltip-box td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.tooltip-box th {
+    color: var(--text-primary);
+    font-weight: 600;
+    background: var(--bg-input);
+}
+
+.tooltip-box td {
+    color: var(--text-secondary);
+}
+
+.tooltip-box td strong {
+    color: var(--accent-blue);
 }
 
 .form-row {
@@ -1169,8 +1236,9 @@ body {
     gap: 16px;
     margin-bottom: 28px;
     padding: 20px;
-    background: var(--bg-input);
+    background: var(--bg-sidebar);
     border-radius: 10px;
+    color: #000000;
 }
 
 .about-info-item {

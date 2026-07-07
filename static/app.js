@@ -63,6 +63,18 @@ document.getElementById('orderType').addEventListener('change', function() {
     spRow.style.display = isSL ? 'flex' : 'none';
 });
 
+// ─── Product Type Toggle (Quantity vs Lots) ───
+function toggleQtyFields() {
+    const productType = document.getElementById('productType').value;
+    const isFO = productType === 'MARGIN';
+    document.getElementById('qtyGroup').style.display = isFO ? 'none' : 'block';
+    document.getElementById('lotsGroup').style.display = isFO ? 'block' : 'none';
+    document.getElementById('lotSizeGroup').style.display = isFO ? 'block' : 'none';
+    document.getElementById('positionTypeGroup').style.display = isFO ? 'block' : 'none';
+}
+document.getElementById('productType').addEventListener('change', toggleQtyFields);
+toggleQtyFields();
+
 // ─── API Helpers ───
 async function api(path, method = 'GET', body = null) {
     const opts = { method, headers: { 'Content-Type': 'application/json' } };
@@ -134,9 +146,20 @@ function getSelectedAccountIds() {
 // ─── Place Order ───
 async function placeOrder(side) {
     const symbol = document.getElementById('symbol').value.trim();
-    const qty = parseInt(document.getElementById('qty').value);
-    const lotSize = parseInt(document.getElementById('lotSize').value) || 1;
     const productType = document.getElementById('productType').value;
+    const isFO = productType === 'MARGIN';
+
+    let qty;
+    if (isFO) {
+        const lots = parseInt(document.getElementById('lots').value);
+        const lotSize = parseInt(document.getElementById('lotSize').value) || 1;
+        if (!lots || lots <= 0) { toast('Enter valid lots', 'error'); return; }
+        qty = lots * lotSize;
+    } else {
+        qty = parseInt(document.getElementById('qty').value);
+        if (!qty || qty <= 0) { toast('Enter valid quantity', 'error'); return; }
+    }
+
     const orderType = parseInt(document.getElementById('orderType').value);
     const limitPrice = parseFloat(document.getElementById('limitPrice').value) || 0;
     const stopPrice = parseFloat(document.getElementById('stopPrice').value) || 0;
@@ -144,15 +167,13 @@ async function placeOrder(side) {
     const accountIds = getSelectedAccountIds();
 
     if (!symbol) { toast('Enter a symbol', 'error'); return; }
-    if (!qty || qty <= 0) { toast('Enter valid quantity', 'error'); return; }
-    if (!lotSize || lotSize <= 0) { toast('Enter valid lot size', 'error'); return; }
-    if (qty % lotSize !== 0) { toast(`Quantity must be a multiple of lot size (${lotSize})`, 'error'); return; }
     if (!accountIds) { toast('Select at least one account', 'error'); return; }
 
     const payload = { symbol, qty, order_type: orderType, side, product_type: productType, limit_price: limitPrice, stop_price: stopPrice, validity, account_ids: accountIds };
 
     const sideLabel = side === 1 ? 'BUY' : 'SELL';
-    logMessage(`Placing ${sideLabel} order: ${symbol} x ${qty}...`, 'pending');
+    const posType = isFO ? ` (${document.getElementById('positionType').value === 'CARRY_FORWARD' ? 'Carry Forward' : 'Intraday'})` : '';
+    logMessage(`Placing ${sideLabel} order: ${symbol} x ${qty}${posType}...`, 'pending');
 
     try {
         const resp = await api('/api/v1/orders/place', 'POST', payload);
@@ -427,7 +448,10 @@ async function loadOrderHistory() {
 
 async function loadHealthCheck() {
     try {
-        const health = await api('/health');
+        const [health, tokenStatus] = await Promise.all([
+            api('/health'),
+            api('/api/v1/tokens/status')
+        ]);
         const container = document.getElementById('healthStatus');
 
         const statusClass = health.status === 'healthy' ? 'health-ok' : health.status === 'degraded' ? 'health-warn' : 'health-error';
@@ -449,7 +473,7 @@ async function loadHealthCheck() {
             if (name === 'database') {
                 details = check.status === 'ok' ? 'Connection OK' : check.detail;
             } else if (name === 'scheduler') {
-                details = `Check every ${check.check_interval_minutes} min | ${check.valid_tokens}/${check.total_accounts} valid tokens`;
+                details = `Check every ${check.check_interval_minutes} min`;
             } else if (name === 'accounts') {
                 details = `${check.active} active / ${check.total} total`;
             }
@@ -460,6 +484,26 @@ async function loadHealthCheck() {
                         <span class="health-badge ${checkClass}">${check.status.toUpperCase()}</span>
                     </div>
                     <div class="health-card-detail">${details}</div>
+                </div>
+            `;
+        }
+
+        if (tokenStatus && Array.isArray(tokenStatus) && tokenStatus.length > 0) {
+            const valid = tokenStatus.filter(a => a.is_valid).length;
+            const total = tokenStatus.length;
+            const tokenClass = valid === total ? 'health-ok' : valid > 0 ? 'health-warn' : 'health-error';
+            let tokenDetails = tokenStatus.map(a => {
+                const icon = a.is_valid ? '&#10003;' : '&#10007;';
+                const cls = a.is_valid ? 'health-ok' : 'health-error';
+                return `<span class="health-badge ${cls}" style="font-size:12px;margin:2px;">${icon} ${a.account_name}</span>`;
+            }).join(' ');
+            html += `
+                <div class="health-card ${tokenClass}">
+                    <div class="health-card-header">
+                        <strong>Token Status</strong>
+                        <span class="health-badge ${tokenClass}">${valid}/${total} VALID</span>
+                    </div>
+                    <div class="health-card-detail">${tokenDetails}</div>
                 </div>
             `;
         }

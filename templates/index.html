@@ -72,20 +72,46 @@
                             <input type="text" id="symbol" placeholder="NSE:SBIN-EQ" value="NSE:SBIN-EQ">
                         </div>
                         <div class="form-row">
-                            <div class="form-group">
+                            <div class="form-group" id="qtyGroup">
                                 <label for="qty">Quantity</label>
                                 <input type="number" id="qty" value="1" min="1">
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" id="lotsGroup" style="display:none;">
+                                <label for="lots">Lots</label>
+                                <input type="number" id="lots" value="1" min="1">
+                            </div>
+                            <div class="form-group" id="lotSizeGroup" style="display:none;">
                                 <label for="lotSize">Lot Size</label>
-                                <input type="number" id="lotSize" value="1" min="1">
+                                <input type="number" id="lotSize" value="50" min="1" readonly>
                             </div>
                             <div class="form-group">
-                                <label for="productType">Product</label>
+                                <label for="productType">
+                                    Product
+                                    <span class="info-icon" title="Product Type Guide">&#9432;</span>
+                                </label>
                                 <select id="productType">
                                     <option value="INTRADAY">INTRADAY</option>
                                     <option value="CNC">CNC (Delivery)</option>
-                                    <option value="MARGIN">MARGIN</option>
+                                    <option value="MARGIN">MARGIN (F&O)</option>
+                                </select>
+                                <div class="tooltip-box">
+                                    <table>
+                                        <thead>
+                                            <tr><th>Product</th><th>Segment</th><th>Description</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td><strong>INTRADAY</strong></td><td>Equity</td><td>Same-day square-off</td></tr>
+                                            <tr><td><strong>CNC</strong></td><td>Equity</td><td>Delivery / Long-term holding</td></tr>
+                                            <tr><td><strong>MARGIN</strong></td><td>F&O</td><td>Derivatives (Intraday & Positional)</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="form-group" id="positionTypeGroup" style="display:none;">
+                                <label for="positionType">Position Type</label>
+                                <select id="positionType">
+                                    <option value="INTRADAY">Intraday</option>
+                                    <option value="CARRY_FORWARD">Carry Forward</option>
                                 </select>
                             </div>
                         </div>
