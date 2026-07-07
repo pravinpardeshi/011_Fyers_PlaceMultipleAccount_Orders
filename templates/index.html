@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fyers Multi-Account Terminal</title>
+    <title>OrderForge - Multi-Account Trading Terminal</title>
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,7 +15,7 @@
         <!-- Sidebar -->
         <nav class="sidebar" id="sidebar">
             <div class="sidebar-brand">
-                <h2>Fyers Terminal</h2>
+                <h2>OrderForge</h2>
                 <span class="subtitle">Multi-Account Trading Platform</span>
             </div>
             <ul class="nav-links">
@@ -34,8 +34,10 @@
                 <li data-tab="health">
                     <span class="icon">&#128154;</span> <span class="nav-text">Health Check</span>
                 </li>
+                <li data-tab="about">
+                    <span class="icon" style="color: var(--accent-yellow);">&#9432;</span> <span class="nav-text">About OrderForge</span>
+                </li>
             </ul>
-	    <div class="sidebar-version">Version 1.0</div>
             <div class="sidebar-footer">
                 <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Minimize sidebar">
                     <span class="toggle-icon">&#10094;</span>
@@ -52,10 +54,8 @@
                     <span>Server Connected</span>
                 </div>
                 <div class="status-right">
-                    <span id="activeAccountCount">0 Active Accounts</span>
-                    <span class="separator">|</span>
-                    <span id="validTokenCount">0 Valid Tokens</span>
-                    <span class="separator">|</span>
+                    <span id="activeAccountCount" class="status-item">0 Active Accounts</span>
+                    <span id="validTokenCount" class="status-item">0 Valid Tokens</span>
                     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark theme">
                         <span id="themeIcon"></span>
                     </button>
@@ -64,8 +64,8 @@
 
             <!-- Trading Terminal Tab -->
             <div id="tab-terminal" class="tab-content active">
-                <div class="terminal-layout">
-                    <div class="order-form-card">
+                <div class="terminal-layout" id="terminalLayout">
+                    <div class="order-form-card" id="orderFormCard">
                         <h3>Place Order</h3>
                         <div class="form-group">
                             <label for="symbol">Symbol</label>
@@ -75,6 +75,10 @@
                             <div class="form-group">
                                 <label for="qty">Quantity</label>
                                 <input type="number" id="qty" value="1" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="lotSize">Lot Size</label>
+                                <input type="number" id="lotSize" value="1" min="1">
                             </div>
                             <div class="form-group">
                                 <label for="productType">Product</label>
@@ -125,7 +129,11 @@
                         </div>
                     </div>
 
-                    <div class="execution-log-card">
+                    <div class="resize-divider" id="resizeDivider">
+                        <div class="resize-handle"></div>
+                    </div>
+
+                    <div class="execution-log-card" id="executionLogCard">
                         <h3>Execution Log</h3>
                         <div id="executionLog" class="execution-log">
                             <div class="log-empty">Place an order to see results here</div>
@@ -239,6 +247,54 @@
                     <button class="btn btn-primary" onclick="loadHealthCheck()">Refresh</button>
                 </div>
                 <div id="healthStatus" class="health-grid"></div>
+            </div>
+
+            <!-- About Tab -->
+            <div id="tab-about" class="tab-content">
+                <div class="tab-header">
+                    <div>
+                        <h3>OrderForge</h3>
+                        <span>The Multi Account Trading Platform</span>
+                    </div>
+                </div>
+                <div class="about-dialog">
+                    <div class="about-icon-section">
+                        <img src="/static/favicon.svg" alt="OrderForge" class="about-app-icon">
+                    </div>
+                    <div class="about-details">
+                        <h2 class="about-app-name">OrderForge</h2>
+                        <div class="about-version-row">
+                            <span class="about-version-badge">Version 1.0.0</span>
+                            <span class="about-build-type">Stable Release</span>
+                        </div>
+                        <p class="about-description">
+                            A powerful multi-account trading terminal for the Fyers brokerage platform.  Place the same order across multiple accounts simultaneously with automated TOTP-based 2FA token generation.
+                        </p>
+                        <div class="about-info-grid">
+                            <div class="about-info-item">
+                                <span class="about-info-label">API Version</span>
+                                <span class="about-info-value">Fyers V3</span>
+                            </div>
+                            <div class="about-info-item">
+                                <span class="about-info-label">Token Validity</span>
+                                <span class="about-info-value">24 Hours</span>
+                            </div>
+                            <div class="about-info-item">
+                                <span class="about-info-label">Auto-refresh</span>
+                                <span class="about-info-value">Every 30 Minutes</span>
+                            </div>
+                            <div class="about-info-item">
+                                <span class="about-info-label">Platform</span>
+                                <span class="about-info-value">Python / FastAPI</span>
+                            </div>
+                        </div>
+                        <div class="about-links">
+                            <a href="https://myapi.fyers.in/docsv3" target="_blank" class="about-link">Fyers API Docs</a>
+                            <span class="about-link-separator">|</span>
+                            <a href="https://github.com/pravinpardeshi/011_Fyers_PlaceMultipleAccount_Orders" target="_blank" class="about-link">GitHub</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
     </div>

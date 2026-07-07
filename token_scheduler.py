@@ -16,53 +16,6 @@ CHECK_INTERVAL_MINUTES = 30
 REFRESH_BEFORE_EXPIRY_HOURS = 1
 
 
-async def generate_tokens_for_all_accounts():
-    """Generate tokens for all active accounts that need one."""
-    async with async_session() as db:
-        result = await db.execute(
-            select(Account).where(Account.is_active == True)
-        )
-        accounts = result.scalars().all()
-
-    if not accounts:
-        logger.info("[Scheduler] No active accounts found")
-        return []
-
-    loop = asyncio.get_event_loop()
-    results = []
-
-    def _gen(acc):
-        return acc.id, acc.name, generate_access_token(acc)
-
-    with ThreadPoolExecutor(max_workers=len(accounts)) as pool:
-        tasks = [loop.run_in_executor(pool, _gen, acc) for acc in accounts]
-        completed = await asyncio.gather(*tasks)
-
-    async with async_session() as db:
-        for account_id, account_name, token_result in completed:
-            if token_result["success"]:
-                try:
-                    await db.execute(
-                        select(Account).where(Account.id == account_id)
-                    )
-                    account = await db.get(Account, account_id)
-                    if account:
-                        account.access_token = token_result["access_token"]
-                        account.token_expiry = datetime.now(timezone.utc) + timedelta(hours=24)
-                        await db.commit()
-                        logger.info("[Scheduler] Token saved for %s", account_name)
-                    results.append({"account": account_name, "success": True})
-                except Exception as e:
-                    logger.exception("[Scheduler] Failed to save token for %s", account_name)
-                    await db.rollback()
-                    results.append({"account": account_name, "success": False, "error": str(e)})
-            else:
-                logger.warning("[Scheduler] Token generation failed for %s: %s", account_name, token_result["error"])
-                results.append({"account": account_name, "success": False, "error": token_result["error"]})
-
-    return results
-
-
 async def check_and_refresh_tokens():
     """Check token expiry and refresh if expiring soon."""
     async with async_session() as db:
@@ -101,7 +54,7 @@ async def check_and_refresh_tokens():
     for acc, reason in accounts_needing_refresh:
         logger.info("[Scheduler]   - %s: %s", acc.name, reason)
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     results = []
 
     def _gen(acc):

@@ -29,7 +29,7 @@ async def generate_tokens(payload: TokenGenerateRequest, db: AsyncSession = Depe
     if not accounts:
         return {"message": "No active accounts found", "results": []}
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     results = []
 
     def _gen_token(acc):

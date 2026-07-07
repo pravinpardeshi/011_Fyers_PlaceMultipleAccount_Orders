@@ -33,7 +33,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Multi-Account Fyers Trading Terminal",
+    title="OrderForge - Multi-Account Trading Terminal",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -109,7 +109,8 @@ async def health_check():
     # Determine overall status
     for check in checks["checks"].values():
         if check.get("status") == "error":
-            checks["status"] = "degraded"
+            if checks["status"] == "healthy":
+                checks["status"] = "degraded"
             break
 
     return checks

@@ -135,6 +135,7 @@ function getSelectedAccountIds() {
 async function placeOrder(side) {
     const symbol = document.getElementById('symbol').value.trim();
     const qty = parseInt(document.getElementById('qty').value);
+    const lotSize = parseInt(document.getElementById('lotSize').value) || 1;
     const productType = document.getElementById('productType').value;
     const orderType = parseInt(document.getElementById('orderType').value);
     const limitPrice = parseFloat(document.getElementById('limitPrice').value) || 0;
@@ -144,6 +145,8 @@ async function placeOrder(side) {
 
     if (!symbol) { toast('Enter a symbol', 'error'); return; }
     if (!qty || qty <= 0) { toast('Enter valid quantity', 'error'); return; }
+    if (!lotSize || lotSize <= 0) { toast('Enter valid lot size', 'error'); return; }
+    if (qty % lotSize !== 0) { toast(`Quantity must be a multiple of lot size (${lotSize})`, 'error'); return; }
     if (!accountIds) { toast('Select at least one account', 'error'); return; }
 
     const payload = { symbol, qty, order_type: orderType, side, product_type: productType, limit_price: limitPrice, stop_price: stopPrice, validity, account_ids: accountIds };
@@ -403,7 +406,7 @@ async function loadOrderHistory() {
             const time = new Date(o.created_at).toLocaleString();
             const sideLabel = o.side === 1 ? 'BUY' : 'SELL';
             const sideClass = o.side === 1 ? 'side-buy' : 'side-sell';
-            const typeLabel = {1:'Limit',2:'Market','3':'SL-Limit','4':'SL-Market'}[o.order_type] || o.order_type;
+            const typeLabel = {1:'Limit', 2:'Market', 3:'SL-Limit', 4:'SL-Market'}[o.order_type] || o.order_type;
             return `
                 <tr>
                     <td>${time}</td>
@@ -467,6 +470,75 @@ async function loadHealthCheck() {
     }
 }
 
+// ─── Layout Controls ───
+function setLayout(ratio) {
+    const orderCard = document.getElementById('orderFormCard');
+    const logCard = document.getElementById('executionLogCard');
+    const [orderFlex, logFlex] = ratio.split('-');
+    orderCard.style.flex = orderFlex;
+    logCard.style.flex = logFlex;
+    
+    document.querySelectorAll('.layout-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    localStorage.setItem('terminal-layout', ratio);
+}
+
+// Restore saved layout
+function restoreLayout() {
+    const saved = localStorage.getItem('terminal-layout') || '50-50';
+    const orderCard = document.getElementById('orderFormCard');
+    const logCard = document.getElementById('executionLogCard');
+    if (orderCard && logCard) {
+        const [orderFlex, logFlex] = saved.split('-');
+        orderCard.style.flex = orderFlex;
+        logCard.style.flex = logFlex;
+    }
+}
+
+// ─── Resizable Divider ───
+function initResizeDivider() {
+    const divider = document.getElementById('resizeDivider');
+    const orderCard = document.getElementById('orderFormCard');
+    const logCard = document.getElementById('executionLogCard');
+    const layout = document.getElementById('terminalLayout');
+    
+    if (!divider || !orderCard || !logCard || !layout) return;
+    
+    let isResizing = false;
+    
+    divider.addEventListener('mousedown', (e) => {
+        isResizing = true;
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+        e.preventDefault();
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+        if (!isResizing) return;
+        
+        const layoutRect = layout.getBoundingClientRect();
+        const offsetX = e.clientX - layoutRect.left;
+        const totalWidth = layoutRect.width;
+        
+        let orderPercent = (offsetX / totalWidth) * 100;
+        orderPercent = Math.max(20, Math.min(80, orderPercent));
+        
+        const logPercent = 100 - orderPercent;
+        
+        orderCard.style.flex = Math.round(orderPercent);
+        logCard.style.flex = Math.round(logPercent);
+    });
+    
+    document.addEventListener('mouseup', () => {
+        if (isResizing) {
+            isResizing = false;
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        }
+    });
+}
+
 // ─── Utility ───
 function esc(str) {
     const d = document.createElement('div');
@@ -476,6 +548,8 @@ function esc(str) {
 
 // ─── Init ───
 async function init() {
+    restoreLayout();
+    initResizeDivider();
     try {
         await api('/api/v1/accounts');
         document.getElementById('connectionStatus').className = 'status-dot green';
@@ -484,6 +558,7 @@ async function init() {
     }
     loadAccounts();
     loadAccountCheckboxes();
+    loadTokenStatus();
 }
 
 init();

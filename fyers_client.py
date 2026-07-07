@@ -15,7 +15,8 @@ logger = logging.getLogger(__name__)
 
 
 def generate_totp(key: str, time_step: int = 30, digits: int = 6) -> str:
-    key_bytes = base64.b32decode(key.upper() + "=" * ((8 - len(key)) % 8))
+    clean_key = key.rstrip("=").upper()
+    key_bytes = base64.b32decode(clean_key + "=" * ((8 - len(clean_key)) % 8))
     counter = struct.pack(">Q", int(time.time() / time_step))
     mac = hmac.new(key_bytes, counter, "sha1").digest()
     offset = mac[-1] & 0x0F
@@ -76,7 +77,7 @@ def generate_access_token(account: Account) -> dict:
             "response_type": "code",
             "create_cookie": True,
         }
-        r4 = s.post("https://api-t1.fyers.in/api/v3/token", headers=headers, json=payload4)
+        r4 = s.post("https://api-t1.fyers.in/api/v3/token", headers=headers, json=payload4, allow_redirects=False)
         logger.info("[%s] Step4 token endpoint status=%d", account.name, r4.status_code)
 
         if r4.status_code not in (302, 308):

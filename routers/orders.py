@@ -42,7 +42,7 @@ async def place_order(payload: PlaceOrderRequest, db: AsyncSession = Depends(get
         "takeProfit": 0,
     }
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     order_results = []
 
     def _place_order(acc):
