@@ -259,7 +259,7 @@ PORT = 8000
 
 ```
 ┌─────────────────┐     ┌──────────────────────────────┐
-│   Browser UI    │────▶│       FastAPI Backend         │
+│   Browser UI    │────▶│  FastAPI Backend             │
 │  (index.html)   │◀────│  /api/v1/orders/place        │
 └─────────────────┘     │  /api/v1/tokens/generate     │
                         │  /api/v1/accounts            │
@@ -268,11 +268,11 @@ PORT = 8000
                                    │
                     ┌──────────────┼──────────────┐
                     ▼              ▼              ▼
-              ┌──────────┐  ┌──────────┐  ┌──────────┐
-              │ Account 1│  │ Account 2│  │ Account 3│
-              │ Fyers V3 │  │ Fyers V3 │  │ Fyers V3 │
-              └──────────┘  └──────────┘  └──────────┘
-```
+                ┌──────────┐  ┌──────────┐  ┌──────────┐
+                │ Account 1│  │ Account 2│  │ Account 3│
+                │ Fyers V3 │  │ Fyers V3 │  │ Fyers V3 │
+                └──────────┘  └──────────┘  └──────────┘
+  ```
 
 - **Token Generation**: Fully automated 5-step TOTP flow (OTP → verify TOTP → verify PIN → get auth code → exchange for access token)
 - **Token Scheduler**: Background task checks every 30 minutes, refreshes tokens expiring within 1 hour
