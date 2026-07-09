@@ -26,7 +26,7 @@ Built with **FastAPI**, **Fyers API V3**, **SQLAlchemy** (SQLite / PostgreSQL), 
 - **Health check endpoint** — `/health` for monitoring DB, scheduler, and account status
 - **Token Status in Health Check** — per-account token validity at a glance
 - **Full order history** — every order tracked with batch grouping and API responses
-- **Server Connection Status** — real-time indicator in the status bar; polls the backend every 10s and shows <p><span style="color:green">green</span> ("Server Connected") or <span style="color:red">red</span></p> ("Server Disconnected")
+- **Server Connection Status** — real-time indicator in the status bar; polls the backend every 10s and shows <span style="color:green">green</span> ("Server Connected") or <span style="color:red">red</span> ("Server Disconnected")
 - **Montserrat font** — clean, modern UI typography
 
 ---
