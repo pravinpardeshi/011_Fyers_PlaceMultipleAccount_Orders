@@ -13,6 +13,9 @@ DATABASE_URL = "sqlite+aiosqlite:///fyers_orders.db"
 # ─── Fyers API ─────────────────────────────────────────────
 DEFAULT_REDIRECT_URI = "https://trade.fyers.in/api-login/redirect-uri/index.html"
 
+# ─── Frontend ──────────────────────────────────────────────
+CONNECTION_POLL_INTERVAL_MS = 10000  # How often the frontend checks backend connectivity (ms)
+
 # ─── Server ────────────────────────────────────────────────
 HOST = "0.0.0.0"
 PORT = 8000

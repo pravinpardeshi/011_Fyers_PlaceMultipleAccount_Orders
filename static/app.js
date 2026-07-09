@@ -590,15 +590,30 @@ function esc(str) {
     return d.innerHTML;
 }
 
+// ─── Connection polling ───
+async function checkConnection() {
+    const dot = document.getElementById('connectionStatus');
+    const label = document.getElementById('connectionLabel');
+    try {
+        await api('/api/v1/accounts');
+        dot.className = 'status-dot green';
+        label.textContent = 'Server Connected';
+    } catch {
+        dot.className = 'status-dot red';
+        label.textContent = 'Server Disconnected';
+    }
+}
+
 // ─── Init ───
 async function init() {
     restoreLayout();
     initResizeDivider();
+    await checkConnection();
     try {
-        await api('/api/v1/accounts');
-        document.getElementById('connectionStatus').className = 'status-dot green';
+        const cfg = await api('/api/v1/config');
+        setInterval(checkConnection, cfg.connection_poll_interval_ms);
     } catch {
-        document.getElementById('connectionStatus').className = 'status-dot red';
+        setInterval(checkConnection, 10000);
     }
     loadAccounts();
     loadAccountCheckboxes();

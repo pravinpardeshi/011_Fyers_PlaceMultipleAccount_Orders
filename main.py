@@ -11,6 +11,7 @@ from fastapi.responses import FileResponse
 from sqlalchemy import text
 
 from database import init_db, async_session
+import config
 from routers import accounts_router, tokens_router, orders_router
 from token_scheduler import scheduler_loop, get_scheduler_status
 
@@ -54,6 +55,11 @@ STATIC_DIR = Path(__file__).parent / "static"
 TEMPLATES_DIR = Path(__file__).parent / "templates"
 
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+
+@app.get("/api/v1/config")
+async def get_config():
+    return {"connection_poll_interval_ms": config.CONNECTION_POLL_INTERVAL_MS}
 
 
 @app.get("/", include_in_schema=False)
