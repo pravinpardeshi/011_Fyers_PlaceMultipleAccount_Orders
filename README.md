@@ -26,7 +26,7 @@ Built with **FastAPI**, **Fyers API V3**, **SQLAlchemy** (SQLite / PostgreSQL), 
 - **Health check endpoint** — `/health` for monitoring DB, scheduler, and account status
 - **Token Status in Health Check** — per-account token validity at a glance
 - **Full order history** — every order tracked with batch grouping and API responses
-- **Server Connection Status** — real-time indicator in the status bar; polls the backend every 10s and shows green ("Server Connected") or red ("Server Disconnected")
+- **Server Connection Status** — real-time indicator in the status bar; polls the backend every 10s and shows **green** ("Server Connected") or **red** ("Server Disconnected")
 - **Montserrat font** — clean, modern UI typography
 
 ---
@@ -191,7 +191,7 @@ The **Health Check** tab shows:
 - Account counts
 - Per-account token validity (Token Status card)
 
-The **status bar** at the top of the UI continuously monitors backend connectivity. It polls the server every 10 seconds and displays a green dot with "Server Connected" when reachable, or a red dot with "Server Disconnected" when the backend is down.
+The **status bar** at the top of the UI continuously monitors backend connectivity. It polls the server every 10 seconds and displays a **green** dot with "Server Connected" when reachable, or a **red** dot with "Server Disconnected" when the backend is down.
 
 ---
 
